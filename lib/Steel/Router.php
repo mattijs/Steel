@@ -71,7 +71,10 @@ class Router
 
             // Catch named parameters
             if (1 === preg_match('/<([^>]*)>/i', $part, $matches)) {
-                $params[$index] = array_pop($matches);
+                // Decrease index. The first part is always empty because of the
+                // leading slash (/)
+                $params[--$index] = array_pop($matches);
+                // Replace the part with a regular expression
                 $part = '([^\/]+)';
             }
             // Catch regular expressions
@@ -111,6 +114,22 @@ class Router
         foreach ($routes as $route) {
             $pattern = str_replace(array('\\', '/'), array('\\\\', '\/'), $route['pattern']);
             if (1 === preg_match("/{$pattern}/i", $url, $matches)) {
+                $route['matched_url'] = $url;
+
+                $parts = explode('/', $url);
+                // Shift first item, it's always empty because of leading /
+                array_shift($parts);
+
+                /*
+                 * Refill the parameters with the actual values extracted from
+                 * the url. Parameters are also added on the position they were
+                 * found in the url.
+                 */
+                $route['params'] = array_combine(
+                    $route['params'],
+                    array_intersect_key($parts, $route['params'])
+                ) + array_intersect_key($parts, $route['params']);
+
                 return $route;
             }
         }
