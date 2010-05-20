@@ -8,6 +8,8 @@
  * @license http://github.com/mattijs/Steel/raw/master/LICENSE Modified BSD License
  */
 
+namespace Steel;
+
 /**
  * View implementation for Steel.
  *
@@ -16,7 +18,7 @@
  *
  * @author Mattijs Hoitink <mattijshoitink@gmail.com>
  */
-class Steel_View
+class View
 {
 
     /**
