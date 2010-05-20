@@ -78,10 +78,13 @@ class Router
                 $part = '([^\/]+)';
             }
             // Catch regular expressions
+            /**
+             * This wont pass when curly brackets ({, }) are used within the
+             * regex we are trying to match.
+             * @todo improve regex detection
+             */
             else if (1 === preg_match('/{([^}]*)}/i', $part, $matches)) {
                 $part = array_pop($matches);
-                $part = trim($part, '{');
-                $part = rtrim($part, '}');
             }
         }
         
@@ -112,8 +115,8 @@ class Router
         $routes = self::$_map;
 
         foreach ($routes as $route) {
-            $pattern = str_replace(array('\\', '/'), array('\\\\', '\/'), $route['pattern']);
-            if (1 === preg_match("/{$pattern}/i", $url, $matches)) {
+            $pattern = str_replace(';', '\;', $route['pattern']);
+            if (1 === preg_match(";{$pattern};i", $url, $matches)) {
                 $route['matched_url'] = $url;
 
                 $parts = explode('/', $url);
