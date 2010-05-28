@@ -1,20 +1,30 @@
 <?php
 /**
- * class Steel_View
+ * class View
  * @package Steel
  * @subpackage View
  *
- * @copyright 2010 Mattijs Hoitink
- * @license http://github.com/mattijs/Steel/raw/master/LICENSE Modified BSD License
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.
+ * It is also available through the world-wide-web at this URL:
+ * http://github.com/mattijs/Steel/raw/master/LICENSE
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to the copyright holder so we can send you a copy immediately.
+ *
+ * @copyright Copyright (c) 2010 Mattijs Hoitink
+ * @license http://github.com/mattijs/Steel/raw/master/LICENSE New BSD License
  */
 
 namespace Steel;
 
 /**
- * View implementation for Steel.
+ * Basic view component for rendering of view scripts.
  *
  * This class renders a view script from one of the configured paths with set 
- * variables in it's own scope.
+ * variables in it's own scope. The output is buffered and returned.
  *
  * @author Mattijs Hoitink <mattijshoitink@gmail.com>
  */
@@ -28,27 +38,24 @@ class View
     protected $_scriptPaths = array();
 
     /**
-     * The view script to render.
-     * @var string
+     * Variables imported into the view script scope.
+     * @param array
      */
-    protected $_script = '';
-
-    /**
-     * If the view was rendered.
-     * @var boolean
-     */
-    protected $_rendered = false;
+    protected $_viewVars = array();
 
     /** **/
 
     /**
      * Set the paths containing view scripts. Paths must be absolute.
      * @param array $paths
-     * @return Steel_View fluent interface
+     * @return Steel\View fluent interface
      */
     public function setScriptPaths(array $paths)
     {
-        $this->_scriptPaths = $paths;
+        $this->_ScriptPaths = array();
+        foreach ($paths as $path) {
+            $this->setScriptPath($path);
+        }
 
         return $this;
     }
@@ -56,17 +63,19 @@ class View
     /**
      * Add a path containing view scripts to the stack. Paths must be absolute.
      * @param string $path
-     * @return Steel_View fluent interface
+     * @return Steel\View fluent interface
      */
-    public function addScriptPath($alias, $path)
+    public function addScriptPath($path)
     {
-        $this->_scriptPaths[$alias] = $path;
-
+        $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+        $path = DIRECTORY_SEPARATOR . trim($path, DIRECTORY_SEPARATOR);
+        $path = rtrim($path, DIRECTORY_SEPARATOR);
+        $this->_scriptPaths[] = $path;
         return $this;
     }
 
     /**
-     * Get the configured paths containing view scripts.
+     * Get the configured view script paths.
      * @return array
      */
     public function getScriptPaths()
@@ -75,75 +84,67 @@ class View
     }
 
     /**
-     * Set the view script to render.
-     * @param string $script
-     * @return Steel_View fluent interface
-     */
-    public function setScript($script)
-    {
-        $this->_script = $script;
-
-        return $this;
-    }
-
-    /**
-     * Get the script configured for rendering.
-     * @return string
-     */
-    public function getScript()
-    {
-        return $this->_script;
-    }
-
-    /**
-     * Get if the script is rendered.
-     * @return boolean
-     */
-    public function isRendered()
-    {
-        return $this->_rendered;
-    }
-
-    /**
      * Assign a variable to the view object.
      * @param string $key
      * @param mixed $value
-     * @return Steel_View fluent interface
+     * @return Steel\View fluent interface
      */
     public function assign($key, $value)
     {
-        $this->$key = $value;
+        $this->_viewVars[$key] = $value;
+        return $this;
+    }
+    
+    /**
+     * Clear the set view variables.
+     * @return Steel\View fluent interface
+     */
+    public function clearViewVars()
+    {
+        $this->_viewVars = array();
         return $this;
     }
 
     /**
      * Render the view script.
-     * @return string
+     * @return string The script output
      */
-    public function render()
+    public function render($script)
     {
         // Find the view script in one of the paths
-        $viewScript = $this->_script($this->getScript());
-
-        // Catch the output
-        ob_start();
-        include $viewScript;
-        $output = ob_get_clean();
-
-        $this->_rendered = true;
-
-        return $output;
+        $viewScript = $this->_findScript($script);
+        
+        // Create an internal renderer with it's own scope
+        $renderer = function($script, array $vars = array()) {
+            extract($vars);
+            unset($vars);
+            
+            // Catch the output
+            ob_start();
+            include $script;
+            $output = ob_get_clean();
+            
+            return $output;
+        };
+        
+        return $renderer($viewScript, $this->_viewVars);
     }
 
     /**
-     * Finds a view script in one of the paths
+     * Find a view script in one of the paths. The paths are scanned in reverse 
+     * order. The first match is returned.
      * @param string $name
-     * @throws Steel_Exception When script could not be found
-     * @return string
+     * @throws Steel\Exception When no script paths are configured
+     * @throws Steel\Exception\NotFound When view script could not be found
+     * @return string the script path
      */
-    public function _script($name)
+    public function _findScript($name)
     {
-        foreach(array_reverse($this->_scriptPaths) as $alias => $path)
+        if (empty($this->_scriptPaths)) {
+            throw new \Steel\Exception('No script paths configured');
+        }
+        
+        foreach(array_reverse($this->_scriptPaths) as $path)
         {
             $viewScript = implode(DIRECTORY_SEPARATOR, array($path, $name));
             if(is_file($viewScript)) {
@@ -152,27 +153,30 @@ class View
         }
 
         // No script found
-        require_once 'Steel/Exception.php';
-        throw new Steel_Exception("View script {$name} could not be found. Paths: " . implode('; ', array_reverse($this->_scriptPaths)) . ";");
+        throw new \Steel\Exception\NotFound("View script {$name} could not be found. Paths: " . implode('; ', array_reverse($this->_scriptPaths)) . ";");
     }
 
     public function __get($name)
     {
-        return $this->$name;
+        if (isset($name, $this->_viewVars)) {
+            return $this->_viewVars[$name];
+        }
     }
 
     public function __set($name, $value)
     {
-        $this->$name = $value;
+        $this->_viewVars[$name] = $value;
     }
 
     public function __isset($name)
     {
-        return isset($this->$name);
+        return isset($this->_viewVars[$name]);
     }
 
     public function __unset ($name)
     {
-        unset($this->$name);
+        if (isset($this->_viewVars[$name])) {
+            unset($this->_viewVars[$name]);
+        }
     }
 }

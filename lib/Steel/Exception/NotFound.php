@@ -1,7 +1,7 @@
 <?php
 /**
- * class Exception
- * 
+ * class NotFound
+ *
  * @package Steel
  * @subpackage Exception
  *
@@ -18,13 +18,12 @@
  * @copyright Copyright (c) 2010 Mattijs Hoitink
  * @license http://github.com/mattijs/Steel/raw/master/LICENSE New BSD License
  */
-
-namespace Steel;
+ 
+namespace Steel\Exception;
 
 /**
- * Base exception class thrown from within the Steel framework
- * 
+ * Exception for Not Found cases.
  * @author Mattijs Hoitink <mattijshoitink@gmail.com>
  */
-class Exception extends \Exception
+class NotFound extends \Steel\Exception
 {}
