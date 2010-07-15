@@ -20,7 +20,7 @@
 
 require_once 'PHPUnit/Framework.php';
 
-use steel\Autoloader as Autoloader;
+use steel\core\Loader as Loader;
 use steel\net\http\Router as Router;
 
 /**
@@ -41,8 +41,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         set_include_path(realpath(__DIR__ . '/../../../lib') . PATH_SEPARATOR . get_include_path());
         
         // Register Steel autloader
-        require_once 'steel/Autoloader.php';
-        Autoloader::register();
+        require_once 'steel/core/Loader.php';
+        Loader::registerAutoload();
         
         // Clear all mapped routes
         Router::clear();

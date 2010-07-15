@@ -2,8 +2,8 @@
 
 // Include path and autoloader
 set_include_path(dirname(__DIR__) . '/lib' . PATH_SEPARATOR . get_include_path());
-require_once 'steel/Autoloader.php';
-spl_autoload_register('steel\Autoloader::autoload');
+require_once 'steel/core/Loader.php';
+\steel\core\Loader::registerAutoload();
 
 use \steel\net\http\Router as Router;
 

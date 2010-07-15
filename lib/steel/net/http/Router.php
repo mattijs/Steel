@@ -168,7 +168,7 @@ class Router
     /**
      * Get a route by name.
      * @param string $name
-     * @throws Steel\Exception When route is not found
+     * @throws steel\exception\NotFound When route is not found
      * @return array
      */
     public static function getRoute($name)
@@ -178,7 +178,7 @@ class Router
             return self::$_map[$name];
         }
         
-        throw new \Steel\Exception\NotFound("Route with name {$name} not found.");
+        throw new \steel\exception\NotFound("Route with name {$name} not found.");
     }
 
     /**
