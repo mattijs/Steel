@@ -108,7 +108,7 @@ class Url
             return '';
         }
         
-        return '?' . http_build_query($this->query);
+        return http_build_query($this->query);
     }
 
     /**
@@ -123,7 +123,7 @@ class Url
         $host = ltrim($this->host, '/');
         $port = ($this->port > 0) ? ':' . $this->port : '';
         $path = '/' . rtrim($this->path, '/');
-        $query = $this->queryString();
+        $query = ('' !== $this->queryString()) ? '?' . $this->queryString() : '';
         $fragment = (!empty($this->fragment)) ? '#' . $this->fragment : '';
         
         // Construct the url from the variables defined in this methods scope
@@ -170,7 +170,14 @@ class Url
         if (false === $parts) {
             throw new Exception('Passed URL could not be parsed. It may be malformed.');
         }
-
+        
+        // Parse query string as an array
+        $parts['query'] = call_user_func(function($query) {
+            parse_str($query);
+            unset($query);
+            return get_defined_vars();
+        }, $parts['query']);
+        
         // Strip auth parts and replace them as an array
         $auth = array();
         if (isset($parts['user'])) {

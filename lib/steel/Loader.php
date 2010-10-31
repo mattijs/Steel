@@ -7,7 +7,7 @@
  * @license     New BSD License - http://github.com/mattijs/Steel/raw/master/LICENSE
  */
 
-namespace steel\core;
+namespace steel;
 
 /**
  * Loader for Steel classes.
