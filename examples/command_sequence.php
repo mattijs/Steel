@@ -14,8 +14,8 @@
 set_include_path(realpath(__DIR__ . '/../lib') . PATH_SEPARATOR . get_include_path());
 
 // Register the Steel autoloader
-require 'steel/core/Loader.php';
-\steel\core\Loader::registerAutoload();
+require 'steel/Loader.php';
+\steel\Loader::registerAutoload();
 
 // Create a new sequence
 $sequence = new \steel\command\Sequence();
