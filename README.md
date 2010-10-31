@@ -15,3 +15,6 @@ Components
 Current (completed) components:
 
 * Command - A component for executing a sequence of commands
+* Net
+  * Ip - Class for working with IP addresses
+  * Url - Class for working with URL's
