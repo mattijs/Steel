@@ -11,8 +11,10 @@
 namespace steel\net\http;
 
 /**
- * Class respresenting a Unified Resource Location. This class can be used to
- * build a path to a resource.
+ * Class for working with Unified Resource Locations or URL's. 
+ * A new instance can be created using the constructor and an 
+ * array or by calling the static method parse and providing 
+ * a string.
  *
  * @package     Steel
  * @subpackage  Net
@@ -102,6 +104,10 @@ class Url
             $this->query = array_merge($this->query, $params);
         }
         
+        if (empty($this->query)) {
+            return '';
+        }
+        
         return '?' . http_build_query($this->query);
     }
 
@@ -119,8 +125,9 @@ class Url
         $path = '/' . rtrim($this->path, '/');
         $query = $this->queryString();
         $fragment = (!empty($this->fragment)) ? '#' . $this->fragment : '';
-
-        return implode('', compact('scheme', 'auth', 'host', 'port', 'path', 'query', 'fragment'));
+        
+        // Construct the url from the variables defined in this methods scope
+        return implode('', get_defined_vars());
     }
 
     /**
