@@ -8,3 +8,10 @@ License
 =======
 
 Steel is licensed under the Modified BSD License
+
+Components
+==========
+
+Current (completed) components:
+
+* Command - A component for executing a sequence of commands
