@@ -1,11 +1,21 @@
 <?php
+/**
+ * Ip.php
+ * 
+ * @package     Steel
+ * @subpackage  Net
+ * @copyright   Mattijs Hoitink <mattijs@monkeyandmachine.com>
+ * @license     New BSD License - http://github.com/mattijs/steel/raw/master/LICENSE
+ */
 
 namespace steel\net;
 
 /**
  * Utility class for working with IP addresses.
  *
- * @author Mattijs Hoitink <mattijs@monkeyandmachine.com>
+ * @package     Steel
+ * @subpackage  Net
+ * @author      Mattijs Hoitink <mattijs@monkeyandmachine.com>
  */
 class Ip
 {
